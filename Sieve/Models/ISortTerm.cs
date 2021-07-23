@@ -5,5 +5,6 @@
         string Sort { set; }
         bool Descending { get; }
         string Name { get; }
+        string[] Values { get; }
     }
 }

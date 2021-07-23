@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Sieve.Services;
 using SieveUnitTests.Abstractions.Entity;
 using SieveUnitTests.Entities;
@@ -36,6 +38,22 @@ namespace SieveUnitTests.Services
                 source.OrderByDescending(p => p.DateCreated);
 
             return result;
+        }
+
+        private readonly Regex _distancePattern = new Regex(@"\((?<x>[-\d.]+);(?<y>[-\d.]+)\)");
+        public IQueryable<Post> Distance(IQueryable<Post> source, bool useThenBy, bool desc, string[] values)
+        {
+            if (values != null && values[0] != null && _distancePattern.IsMatch(values[0]))
+            {
+                var matchResult = _distancePattern.Match(values[0]);
+                var x = double.Parse(matchResult.Groups["x"].Value);
+                var y = double.Parse(matchResult.Groups["y"].Value);
+
+                return source.OrderBy(post => Math.Sqrt(
+                    Math.Pow(post.PointForDistanceSorting.X - x, 2) + Math.Pow(post.PointForDistanceSorting.Y - y, 2)));
+            }
+
+            return source;
         }
     }
 }

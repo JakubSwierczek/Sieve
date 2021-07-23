@@ -1,29 +1,47 @@
 ﻿using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Sieve.Models
 {
     public class SortTerm : ISortTerm, IEquatable<SortTerm>
     {
-        public SortTerm() { }
+        private const string EscapedPipePattern = @"(?<!($|[^\\])(\\\\)*?\\)\|";
+        private static readonly string[] Operators = new string[] {
+            "==",
+        };
 
-        private string _sort;
+        public SortTerm() { }
 
         public string Sort
         {
             set
             {
-                _sort = value;
+                var filterSplits = value
+                   .Split(Operators, StringSplitOptions.RemoveEmptyEntries)
+                   .Select(t => t.Trim()).ToArray();
+
+                var name = filterSplits[0];
+
+
+                Name = name.StartsWith("-") ? name[1..] : name;
+                Descending = name.StartsWith("-");
+                Values = filterSplits.Length > 1 ? Regex.Split(filterSplits[1], EscapedPipePattern).Select(t => t.Trim()).ToArray() : null;
             }
         }
 
-        public string Name => (_sort.StartsWith("-")) ? _sort.Substring(1) : _sort;
+        public string Name { get; private set; }
 
-        public bool Descending => _sort.StartsWith("-");
+        public bool Descending { get; private set; }
+
+        public string[] Values { get; private set; }
 
         public bool Equals(SortTerm other)
         {
-            return Name == other.Name
-                && Descending == other.Descending;
+            return other != null
+                   && Name == other.Name
+                   && Values.SequenceEqual(other.Values)
+                   && Descending == other.Descending;
         }
     }
 }

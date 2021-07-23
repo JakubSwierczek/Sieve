@@ -30,5 +30,7 @@ namespace SieveUnitTests.Entities
 
         public Comment TopComment { get; set; }
         public Comment FeaturedComment { get; set; }
+
+        public (double X, double Y) PointForDistanceSorting { get; set; }
     }
 }

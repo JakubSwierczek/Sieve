@@ -35,7 +35,8 @@ namespace SieveUnitTests
                     IsDraft = true,
                     CategoryId = null,
                     TopComment = new Comment { Id = 0, Text = "A1" },
-                    FeaturedComment = new Comment { Id = 4, Text = "A2" }
+                    FeaturedComment = new Comment { Id = 4, Text = "A2" },
+                    PointForDistanceSorting = (X: 10, Y: 10),
                 },
                 new Post
                 {
@@ -45,7 +46,8 @@ namespace SieveUnitTests
                     IsDraft = false,
                     CategoryId = 1,
                     TopComment = new Comment { Id = 3, Text = "B1" },
-                    FeaturedComment = new Comment { Id = 5, Text = "B2" }
+                    FeaturedComment = new Comment { Id = 5, Text = "B2" },
+                    PointForDistanceSorting = (X: 5, Y: 5),
                 },
                 new Post
                 {
@@ -54,7 +56,8 @@ namespace SieveUnitTests
                     LikeCount = 0,
                     CategoryId = 1,
                     TopComment = new Comment { Id = 2, Text = "C1" },
-                    FeaturedComment = new Comment { Id = 6, Text = "C2" }
+                    FeaturedComment = new Comment { Id = 6, Text = "C2" },
+                    PointForDistanceSorting = (X: 7, Y: 7),
                 },
                 new Post
                 {
@@ -64,7 +67,8 @@ namespace SieveUnitTests
                     IsDraft = true,
                     CategoryId = 2,
                     TopComment = new Comment { Id = 1, Text = "D1" },
-                    FeaturedComment = new Comment { Id = 7, Text = "D2" }
+                    FeaturedComment = new Comment { Id = 7, Text = "D2" },
+                    PointForDistanceSorting = (X: 1, Y: 1),
                 },
             }.AsQueryable();
 
@@ -183,7 +187,7 @@ namespace SieveUnitTests
 
             Assert.True(result.Count() == 2);
         }
-        
+
         [Theory]
         [InlineData(@"Text@=*\,")]
         [InlineData(@"Text@=*\, ")]
@@ -324,6 +328,19 @@ namespace SieveUnitTests
             var result = _processor.Apply(model, _posts);
 
             Assert.False(result.First().Id == 0);
+        }
+
+        [Fact]
+        public void CustomSortWithParametersWorks()
+        {
+            var model = new SieveModel
+            {
+                Sorts = "Distance==(1;1)"
+            };
+
+            var result = _processor.Apply(model, _posts);
+
+            Assert.True(result.First().Id == 3);
         }
 
         [Fact]

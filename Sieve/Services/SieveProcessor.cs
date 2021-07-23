@@ -363,8 +363,12 @@ namespace Sieve.Services
                 }
                 else
                 {
+                    var parameters = sortTerm.Values == null
+                        ? new object[] { result, useThenBy, sortTerm.Descending }
+                        : new object[] { result, useThenBy, sortTerm.Descending, sortTerm.Values };
+
                     result = ApplyCustomMethod(result, sortTerm.Name, _customSortMethods,
-                        new object[] {result, useThenBy, sortTerm.Descending}, dataForCustomMethods);
+                        parameters, dataForCustomMethods);
                 }
 
                 useThenBy = true;
